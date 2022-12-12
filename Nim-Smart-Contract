@@ -1,0 +1,60 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract Nim {
+    // Define a mapping for player states
+    mapping(address => playerStates) public players;
+
+    // Define a struct for player states
+    struct playerStates {
+        uint marblesOnTable;
+        uint playerWins;
+        uint computerWins;
+    }
+
+    // Function to start a new game
+    function newGame() public {
+        // Set marblesOnTable to 12 if it is currently 0
+        if (players[msg.sender].marblesOnTable == 0) {
+            players[msg.sender].marblesOnTable = 12;
+        }
+    }
+
+    // Function for player's turn
+    function turn(uint marblesToTake) public {
+        // Check if it is the first turn and player is taking a valid number of marbles
+        if (players[msg.sender].marblesOnTable == 12 && marblesToTake >= 0 && marblesToTake <= 3) {
+            players[msg.sender].marblesOnTable -= marblesToTake;
+        }
+        // Check if it is not the first turn and player is taking a valid number of marbles
+        else if (players[msg.sender].marblesOnTable < 12 && marblesToTake >= 1 && marblesToTake <= 3) {
+            players[msg.sender].marblesOnTable -= marblesToTake;
+        }
+        // Otherwise, the move is invalid and the turn ends
+        else {
+            return;
+        }
+
+        // If there are no marbles left on the table, the player wins
+        if (players[msg.sender].marblesOnTable == 0) {
+            players[msg.sender].playerWins++;
+            return;
+        }
+
+        // Computer's turn
+        // Take 1 marble if marblesOnTable is 4, 8, or 12
+        if (players[msg.sender].marblesOnTable == 4 || players[msg.sender].marblesOnTable == 8 || players[msg.sender].marblesOnTable == 12) {
+            players[msg.sender].marblesOnTable--;
+        }
+        // Take marblesOnTable%4 marbles
+        else {
+            players[msg.sender].marblesOnTable -= players[msg.sender].marblesOnTable % 4;
+        }
+
+        // If there are no marbles left on the table, the computer wins
+        if (players[msg.sender].marblesOnTable == 0) {
+            players[msg.sender].computerWins++;
+            return;
+        }
+    }
+}
